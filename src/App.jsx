@@ -3,7 +3,7 @@ import Header from "./components/header/Header";
 import Sidebar from "./components/sidebar/Sidebar";
 import { BrowserRouter as Router, Routes, Route,} from "react-router-dom";
 
-import { Chat } from "@mui/icons-material";
+import Chat from "./components/chatroom/Chat";
 function App() {
   return (
     //BEM naming convention
@@ -14,9 +14,9 @@ function App() {
       <div className="app_body">
         <Sidebar />
         <Routes>
-          <Route path="/channel/:channelId" element={<h2>Hello Chat!</h2>}>
+          <Route path="/channel/:channelId" element={<Chat/>}>
             
-            {/* <Chat/> */}
+            
           </Route>
           <Route path="/" element={<h1>This is Crocoduck</h1>}>
             {/* <h1>Qua-Hiss!</h1> */}
