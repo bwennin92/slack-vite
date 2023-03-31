@@ -52,7 +52,7 @@ function Sidebar() {
       <SidebarOption Icon={FileCopy} title="File browser" />
       <SidebarOption Icon={ExpandLess} title="Show less" />
       <SidebarOption Icon={ExpandMore} title="Channels" />
-      <SidebarOption Icon={Add} title="Add Channel" />
+      <SidebarOption Icon={Add} addChannelOption title="Add Channel" />
 
       {/* Connect to DB and list all the channels */}
       {/* SidebarOption ... */}

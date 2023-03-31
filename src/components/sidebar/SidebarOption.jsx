@@ -1,8 +1,39 @@
 import React from "react";
 import "./SidebarOption.css";
-function SidebarOption({ Icon, title }) {
+import { useNavigate } from "react-router-dom";
+import supabase from "../../lib/supabase";
+
+
+
+function SidebarOption({ Icon, title, id, addChannelOption }) {
+const navigate = useNavigate();
+
+  const selectChannel = () =>{
+    if (id) {
+      navigate(`/channel/${title}`);
+    } else {
+      navigate(title);
+    }
+  };
+
+const addChannel = () => {
+  const channelName = prompt('Please enter channel name')
+  if (channelName) {
+    async function addingChannels() {
+    const { data, error } = await supabase
+  .from('channels')
+  .insert([
+    { some_column: 'someValue', other_column: 'otherValue' },
+  ])
+      if(error) console.error(error);
+    console.log(data)
+  }
+  addingChannels();
+  }
+}
+
   return (
-    <div className="sidebarOption">
+    <div className="sidebarOption" onClick={addChannelOption ? addChannel: selectChannel}>
       {Icon && <Icon className="sidebarOption_icon" />}
       {Icon ? (
         <h3>{title}</h3>
