@@ -30,6 +30,28 @@ function Sidebar() {
     }
     channelData();
   }, []);
+
+  useEffect(()=> {
+    const realChannel = supabase
+    .channel('rooms')
+    .on('postgres_changes',
+    {
+      event:'*',
+      schema: 'public',
+      table:'channels',
+    },
+    (payload) =>{setChannels([...channels, payload.new] )
+      console.log(payload)}
+    
+    )
+    .subscribe()
+})
+
+
+
+
+
+
   return (
     <div className="sidebar">
       <div className="sidebar_header">

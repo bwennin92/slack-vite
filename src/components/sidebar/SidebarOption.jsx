@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./SidebarOption.css";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../lib/supabase";
@@ -7,7 +7,7 @@ import supabase from "../../lib/supabase";
 
 function SidebarOption({ Icon, title, id, addChannelOption }) {
 const navigate = useNavigate();
-const [channels, setChannels] = useState([])
+const [channels, setChannels] = useState([]);
 
 
 
@@ -25,13 +25,15 @@ const addChannel = () => {
     async function addingChannels() {
     const { data, error } = await supabase
   .from('channels')
-  .insert([{slug:channelName}])
+  .insert([{slug:(channelName)}])
       if(error) console.error(error);
     console.log(data)
   }
   addingChannels();
   }
 }
+
+
 
   return (
     <div className="sidebarOption" onClick={addChannelOption ? addChannel: selectChannel}>
