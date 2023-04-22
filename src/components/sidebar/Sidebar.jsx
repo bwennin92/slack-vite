@@ -21,36 +21,31 @@ function Sidebar() {
   const [channels, setChannels] = useState([]);
   useEffect(() => {
     async function channelData() {
-      const { data, error } = await supabase
-        .from("channels")
-        .select("*");
-        setChannels(data);
-        if(error) console.error(error);
-        console.log(data)
+      const { data, error } = await supabase.from("channels").select("*");
+      setChannels(data);
+      if (error) console.error(error);
+      console.log(data);
     }
     channelData();
   }, []);
 
-  useEffect(()=> {
+  useEffect(() => {
     const realChannel = supabase
-    .channel('rooms')
-    .on('postgres_changes',
-    {
-      event:'*',
-      schema: 'public',
-      table:'channels',
-    },
-    (payload) =>{setChannels([...channels, payload.new] )
-      console.log(payload)}
-    
-    )
-    .subscribe()
-})
-
-
-
-
-
+      .channel("rooms")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "channels",
+        },
+        (payload) => {
+          setChannels([...channels, payload.new]);
+          console.log(payload);
+        }
+      )
+      .subscribe();
+  });
 
   return (
     <div className="sidebar">
@@ -65,7 +60,6 @@ function Sidebar() {
         <Create />
       </div>
       <SidebarOption Icon={InsertComment} title="Threads" />
-      <SidebarOption title="Crocoducks" />
       <SidebarOption Icon={Inbox} title="Mentions & Reactions" />
       <SidebarOption Icon={Drafts} title="Saved Drafts" />
       <SidebarOption Icon={BookmarkBorder} title="Channel Browser" />
@@ -78,8 +72,8 @@ function Sidebar() {
 
       {/* Connect to DB and list all the channels */}
       {/* SidebarOption ... */}
-      {channels.map(channel => (
-        <SidebarOption title={channel.slug} id={channel.id}/>
+      {channels.map((channel) => (
+        <SidebarOption title={channel.slug} id={channel.id} />
       ))}
     </div>
   );
