@@ -21,7 +21,9 @@ function Sidebar() {
   const [channels, setChannels] = useState([]);
   useEffect(() => {
     async function channelData() {
-      const { data, error } = await supabase.from("channels").select("*");
+      const { data, error } = await supabase
+      .from("channels")
+      .select("*");
       setChannels(data);
       if (error) console.error(error);
       console.log(data);
@@ -41,7 +43,7 @@ function Sidebar() {
         },
         (payload) => {
           setChannels([...channels, payload.new]);
-          console.log(payload);
+          console.log(payload.new);
         }
       )
       .subscribe();
@@ -72,8 +74,8 @@ function Sidebar() {
 
       {/* Connect to DB and list all the channels */}
       {/* SidebarOption ... */}
-      {channels.map((channel) => (
-        <SidebarOption title={channel.slug} id={channel.id} />
+      {channels.map((channel, i) => (
+        <SidebarOption key={i} title={channel.slug} id={channel.id} />
       ))}
     </div>
   );

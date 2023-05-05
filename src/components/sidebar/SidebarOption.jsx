@@ -13,9 +13,9 @@ const [channels, setChannels] = useState([]);
 
   const selectChannel = () =>{
     if (id) {
-      navigate(`/channel/${title}`);
+      navigate(`/channel/${id}`);
     } else {
-      navigate(title);
+      navigate(id);
     }
   };
 

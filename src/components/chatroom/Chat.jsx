@@ -3,10 +3,26 @@ import "./Chat.css";
 import { useParams } from "react-router-dom";
 import { InfoOutlined, StarBorderOutlined } from "@mui/icons-material";
 import supabase from "../../lib/supabase";
-import Messages from '../message/Messages';
+import Messages from "../message/Messages";
 function Chat() {
   const { channelId } = useParams();
-  const [channelDetails, setChannelDetails] = useState(null);
+  const [channelDetails, setChannelDetails] = useState([]);
+  const [channelTitle, setChannelTitle] = useState([]);
+
+  useEffect(() => {
+    async function channelName() {
+      const { data: channels, error } = await supabase
+        .from("channels")
+        .select("slug")
+        .eq('id', channelId)
+        .limit(1)
+        .single()
+      setChannelTitle(channels);
+      if (error) console.error(error);
+      console.log(channels);
+    }
+    channelName();
+  }, [channelId]);
 
   useEffect(() => {
     if (channelId) {
@@ -23,27 +39,28 @@ function Chat() {
         )
         .subscribe();
     }
-  },[channelId]);
+  }, [channelId]);
 
   useEffect(() => {
-    async function messagesData() {
+    async function messageData() {
       const { data: messages, error } = await supabase
         .from("messages")
-        .select("inserted_at")
-        .order("inserted_at", { ascending: true });
+        .select("channel_id, message, user_id, inserted_at, channels(id)")
+        .eq("channel_id", channelId);
       setChannelDetails(messages);
       if (error) console.error(error);
       console.log(messages);
-      messagesData();
+      console.log('refreshing messages')
     }
-  });
+    messageData();
+  }, [channelId]);
 
   return (
     <div className="chat">
       <div className="chat_header">
         <div className="chat_headerLeft">
           <h4 className="chat_channelName">
-            <strong>#{channelId}</strong>
+            <strong>#{channelTitle.slug}</strong>
             <StarBorderOutlined />
           </h4>
         </div>
@@ -54,13 +71,17 @@ function Chat() {
         </div>
       </div>
       <div className="chat_messages">
-        {channelDetails.map(({message, timestamp, user, userImage}) =>
-        <Messages
-        message = {message}
-        timestamp={timestamp}
-        user={user}
-        userImage={userImage}
-        />
+        {channelDetails ? (
+          channelDetails.map((chatMessage, m) => (
+            <Messages
+              key={m}
+              message={chatMessage.message}
+              // timestamp={chatMessage.inserted_at}
+              // user={chatMessage.user_id}
+            />
+          ))
+        ) : (
+          <></>
         )}
       </div>
     </div>
