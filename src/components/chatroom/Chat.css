@@ -33,3 +33,9 @@
     font-size: 16px;
 }
 
+#chat_box{
+    display: flex;
+    border-radius: 6px;
+    border-color: black;
+    
+}

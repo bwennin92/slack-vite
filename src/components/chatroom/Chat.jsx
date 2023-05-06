@@ -76,13 +76,17 @@ function Chat() {
             <Messages
               key={m}
               message={chatMessage.message}
-              // timestamp={chatMessage.inserted_at}
-              // user={chatMessage.user_id}
+              timestamp={chatMessage.inserted_at}
+              user={chatMessage.user_id}
             />
           ))
         ) : (
           <></>
         )}
+      </div>
+      <div className="chat_input">
+        <textarea name="" id="chat_box" cols="30" rows="1"></textarea>
+        <div className="chat_inputButtons"></div>
       </div>
     </div>
   );
