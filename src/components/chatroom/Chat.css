@@ -37,5 +37,7 @@
     display: flex;
     border-radius: 6px;
     border-color: black;
-    
+    border-width: 1px;
+    border-style: solid;
+    padding: 2px;
 }
