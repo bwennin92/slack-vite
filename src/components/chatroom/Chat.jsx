@@ -2,21 +2,25 @@ import React, { useEffect, useState } from "react";
 import "./Chat.css";
 import { useParams } from "react-router-dom";
 import { InfoOutlined, StarBorderOutlined } from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
 import supabase from "../../lib/supabase";
 import Messages from "../message/Messages";
+import Grid from "@mui/material/Grid";
 function Chat() {
   const { channelId } = useParams();
   const [channelDetails, setChannelDetails] = useState([]);
   const [channelTitle, setChannelTitle] = useState([]);
+  const [chatMessage, setChatMessage] = useState("");
 
   useEffect(() => {
     async function channelName() {
       const { data: channels, error } = await supabase
         .from("channels")
         .select("slug")
-        .eq('id', channelId)
+        .eq("id", channelId)
         .limit(1)
-        .single()
+        .single();
       setChannelTitle(channels);
       if (error) console.error(error);
       console.log(channels);
@@ -50,10 +54,33 @@ function Chat() {
       setChannelDetails(messages);
       if (error) console.error(error);
       console.log(messages);
-      console.log('refreshing messages')
+      console.log("refreshing messages");
     }
     messageData();
   }, [channelId]);
+
+  async function submitMessage(channel_id, user_id, message, id = false) {
+    if (id) {
+      // editing
+    } else {
+      // new message
+      const { error } = await supabase
+        .from("messages")
+        .insert([{ channel_id, user_id, message }]);
+
+      if (error) console.error(error);
+    }
+  }
+
+  // function checkSubmit(e) {
+  //   if(e.keyCode===13) {
+  //     submitMessage(channelId, "", chatMessage).then(()=>{
+
+  //     }).catch(err=>{
+  //       console.warn(err);
+  //     });
+  //   }
+  // }
 
   return (
     <div className="chat">
@@ -70,6 +97,7 @@ function Chat() {
           </p>
         </div>
       </div>
+
       <div className="chat_messages">
         {channelDetails ? (
           channelDetails.map((chatMessage, m) => (
@@ -84,8 +112,32 @@ function Chat() {
           <></>
         )}
       </div>
+
       <div className="chat_input">
-        <textarea name="" id="chat_box" cols="30" rows="1"></textarea>
+        <Box component="form" noValidate autoComplete="off"
+          onSubmit={(e) => {
+            console.log('form submitted');
+            e.preventDefault();
+            submitMessage(channelId, "8d0fd2b3-9ca7-4d9e-a95f-9e13dded323e", chatMessage).then(()=>{
+              console.log('message submitted');
+            }).catch(err=>{
+              console.warn(err);
+            });
+            e.stopPropagation();
+          }}
+        >
+          <Grid>
+            {/* https://mui.com/material-ui/api/text-field/ */}
+            <TextField
+              id="outlined-basic"
+              label="Message to"
+              variant="outlined"
+              fullWidth
+              onChange={e=>setChatMessage(e.target.value)}
+              value={chatMessage}
+            />
+          </Grid>
+        </Box>
         <div className="chat_inputButtons"></div>
       </div>
     </div>
