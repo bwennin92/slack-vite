@@ -72,15 +72,7 @@ function Chat() {
     }
   }
 
-  // function checkSubmit(e) {
-  //   if(e.keyCode===13) {
-  //     submitMessage(channelId, "", chatMessage).then(()=>{
-
-  //     }).catch(err=>{
-  //       console.warn(err);
-  //     });
-  //   }
-  // }
+//checking repo
 
   return (
     <div className="chat">
