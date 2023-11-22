@@ -1,48 +1,59 @@
-/* Overall body styling */
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-/* Container for the login content */
-.login-container {
-    background-color: white;
+.loginComponent {
+    /* Styles for the login component container */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-/* Styling the login button */
-.login-btn {
-    background-color: #333;
-    color: white;
+    background-color: white;
+  }
+  
+  .loginComponent input {
+    /* Styles for input fields */
+    margin: 10px 0;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .loginComponent button {
+    /* Styles for the login button */
+    padding: 10px 15px;
     border: none;
-    padding: 10px 20px;
-    margin-top: 20px;
-    border-radius: 5px;
+    border-radius: 4px;
+    background-color: #33b5e5;
+    color: white;
     cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
+  }
+  
+  .loginComponent button:hover {
+    /* Hover effect for the button */
+    background-color: #2980b9;
+  }
+
+  .loginComponent {
+    background-color: #041f41;
+    padding: 1.5rem 2rem 2.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+.loginComponent svg{
+  margin-bottom: 1rem;
 }
 
-.login-btn:hover {
-    background-color: #555;
-}
+  h2 {
+    color: #06f27b;
+    margin-bottom: 1rem;
+  }
+  .page {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: cadetblue;
+  }
 
-/* Add a GitHub logo or color for specific OAuth provider */
-.github-login {
-    background-color: #24292e; /* GitHub's color */
-}
-
-.github-login:hover {
-    background-color: #3a3f44;
-}
-
-/* Add more styling as per your need */
+  .page.center{
+    justify-content: center;
+    align-items: center;
+  }
