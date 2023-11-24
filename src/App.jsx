@@ -27,7 +27,7 @@ function App() {
     } else {
       console.log("User logged out successfully");
       // Redirect to login page or home page after logout
-      // window.location.href = '/login'; // or use your routing solution
+      window.location.href = '/login'; // or use your routing solution
     }
   };
   useEffect(() => {

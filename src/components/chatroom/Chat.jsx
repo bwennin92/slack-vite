@@ -7,11 +7,38 @@ import TextField from "@mui/material/TextField";
 import supabase from "../../lib/supabase";
 import Messages from "../message/Messages";
 import Grid from "@mui/material/Grid";
+
 function Chat() {
   const { channelId } = useParams();
   const [channelDetails, setChannelDetails] = useState([]);
   const [channelTitle, setChannelTitle] = useState([]);
   const [chatMessage, setChatMessage] = useState("");
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Fetch the user on component mount
+    const fetchUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error('Error retrieving user:', error);
+      }
+    };
+
+    fetchUser();
+
+    // Subscribe to authentication changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    // Cleanup the listener when the component is unmounted
+    // return () => {
+    //   authListener.unsubscribe();
+    // };
+  }, []);
+
 
   useEffect(() => {
     async function channelName() {
@@ -19,30 +46,25 @@ function Chat() {
         .from("channels")
         .select("slug")
         .eq("id", channelId)
-        .limit(1)
         .single();
       setChannelTitle(channels);
       if (error) console.error(error);
-      console.log(channels);
     }
     channelName();
   }, [channelId]);
 
   useEffect(() => {
-    if (channelId) {
-      const realChannelMessage = supabase
-        .channel("rooms")
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "messages",
-          },
-          (payload) => console.log(payload)
-        )
-        .subscribe();
-    }
+    const messageListener = supabase
+    .channel('custom-all-channel')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
+      console.log('New message received!', payload);
+      // Update your state or UI here with the new message
+    })
+    .subscribe();
+
+    return () => {
+      supabase.removeChannel(messageListener);
+    };
   }, [channelId]);
 
   useEffect(() => {
@@ -53,26 +75,28 @@ function Chat() {
         .eq("channel_id", channelId);
       setChannelDetails(messages);
       if (error) console.error(error);
-      console.log(messages);
-      console.log("refreshing messages");
     }
     messageData();
   }, [channelId]);
 
-  async function submitMessage(channel_id, user_id, message, id = false) {
-    if (id) {
-      // editing
-    } else {
-      // new message
-      const { error } = await supabase
+  async function submitMessage(channel_id, message) {
+    if (user && user.id) {
+      const { data, error } = await supabase
         .from("messages")
-        .insert([{ channel_id, user_id, message }]);
-
-      if (error) console.error(error);
+        .insert([{ channel_id, user_id: user.id, message }]);
+      
+      if (error) {
+        console.error('Error submitting message:', error);
+      } else if (data && data.length > 0) { // Check if data is not null and has at least one item
+        const newMessage = data[0];
+        setChannelDetails(prevMessages => [...prevMessages, newMessage]);
+      } else {
+        console.error('No data returned from the insert operation');
+      }
+    } else {
+      console.log('User must be logged in to send a message.');
     }
   }
-
-//checking repo
 
   return (
     <div className="chat">
@@ -91,46 +115,41 @@ function Chat() {
       </div>
 
       <div className="chat_messages">
-        {channelDetails ? (
-          channelDetails.map((chatMessage, m) => (
-            <Messages
-              key={m}
-              message={chatMessage.message}
-              timestamp={chatMessage.inserted_at}
-              user={chatMessage.user_id}
-            />
-          ))
-        ) : (
-          <></>
-        )}
+        {channelDetails.map((message, m) => (
+          <Messages
+            key={m}
+            message={message.message}
+            timestamp={message.inserted_at}
+            user={message.user_id}
+          />
+        ))}
       </div>
 
       <div className="chat_input">
         <Box component="form" noValidate autoComplete="off"
           onSubmit={(e) => {
-            console.log('form submitted');
             e.preventDefault();
-            submitMessage(channelId, "8d0fd2b3-9ca7-4d9e-a95f-9e13dded323e", chatMessage).then(()=>{
-              console.log('message submitted');
-            }).catch(err=>{
-              console.warn(err);
-            });
+            if (user) {
+              submitMessage(channelId, chatMessage)
+                .then(() => setChatMessage('')) // Clear the input after sending
+                .catch(console.error);
+            } else {
+              console.log('User must be logged in to send a message.');
+            }
             e.stopPropagation();
           }}
         >
           <Grid>
-            {/* https://mui.com/material-ui/api/text-field/ */}
             <TextField
               id="outlined-basic"
-              label="Message to"
+              label="Message"
               variant="outlined"
               fullWidth
-              onChange={e=>setChatMessage(e.target.value)}
+              onChange={e => setChatMessage(e.target.value)}
               value={chatMessage}
             />
           </Grid>
         </Box>
-        <div className="chat_inputButtons"></div>
       </div>
     </div>
   );
