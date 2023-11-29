@@ -16,7 +16,7 @@ import Chat from "./components/chatroom/Chat";
 
 
 function App() {
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const handleLogout = async () => {
     // Call Supabase to log out
@@ -27,23 +27,30 @@ function App() {
     } else {
       console.log("User logged out successfully");
       // Redirect to login page or home page after logout
-      window.location.href = '/login'; // or use your routing solution
+      // window.location.href = '/login'; // or use your routing solution
     }
   };
   useEffect(() => {
     // Set up a real-time subscription to auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
+    const{ data: { authListener }, } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setCurrentUser(session?.user || null);
         if (event === "SIGNED_IN") {
-          Navigate("/channel/1");
+          navigate("/channel/1");
         }
         if (event === "SIGNED_OUT") {
-          Navigate("/");
+          navigate("/");
         }
       }
     );
-  });
+  
+    // Cleanup function
+    return () => {
+      if (authListener) {
+        authListener.unsubscribe();
+      }
+    };
+  }, [navigate]); // Ensure dependencies are correctly listed
 
   return (
     currentUser === null ? <LoginPage />:
