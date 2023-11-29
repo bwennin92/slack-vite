@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./Chat.css";
 import { useParams } from "react-router-dom";
 import { InfoOutlined, StarBorderOutlined } from "@mui/icons-material";
@@ -14,6 +14,14 @@ function Chat() {
   const [channelTitle, setChannelTitle] = useState([]);
   const [chatMessage, setChatMessage] = useState("");
   const [user, setUser] = useState(null);
+  const messagesEndRef = useRef(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({behavior:'auto'});
+  }
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [channelDetails]);
 
   useEffect(() => {
     // Fetch the user on component mount
@@ -27,17 +35,7 @@ function Chat() {
     };
 
     fetchUser();
-
-    // Subscribe to authentication changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    // Cleanup the listener when the component is unmounted
-    // return () => {
-    //   authListener.unsubscribe();
-    // };
-  }, []);
+  });
 
 
   useEffect(() => {
@@ -55,18 +53,19 @@ function Chat() {
 
   useEffect(() => {
     const messageListener = supabase
-    .channel('custom-all-channel')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
-      console.log('New message received!', payload);
-      // Update your state or UI here with the new message
-    })
-    .subscribe();
-
+      .channel('custom-all-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
+        console.log('New message received!', payload);
+        // Assuming payload contains the new message data
+        setChannelDetails(prevMessages => [...prevMessages, payload.new]);
+      })
+      .subscribe();
+  
     return () => {
       supabase.removeChannel(messageListener);
     };
-  }, [channelId]);
-
+  }, [channelId]); // Make sure the dependencies are correct
+  
   useEffect(() => {
     async function messageData() {
       const { data: messages, error } = await supabase
@@ -114,15 +113,16 @@ function Chat() {
         </div>
       </div>
 
-      <div className="chat_messages">
-        {channelDetails.map((message, m) => (
+      <div className="chat_messages" style={{ maxHeight:'500px', overflowY: 'auto'}}>
+        {channelDetails.map((message, index) => (
           <Messages
-            key={m}
+            key={index}
             message={message.message}
             timestamp={message.inserted_at}
             user={message.user_id}
           />
         ))}
+        <div ref={messagesEndRef}/>
       </div>
 
       <div className="chat_input">
