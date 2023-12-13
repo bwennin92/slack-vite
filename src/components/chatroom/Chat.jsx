@@ -35,7 +35,7 @@ function Chat() {
     };
 
     fetchUser();
-  });
+  },[]);
 
 
   useEffect(() => {
