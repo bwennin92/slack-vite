@@ -54,9 +54,15 @@ function Chat() {
   useEffect(() => {
     const messageListener = supabase
       .channel('custom-all-channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, async payload => {
         console.log('New message received!', payload);
-        // Assuming payload contains the new message data
+        const userUpdate = await supabase
+        .from('users')
+        .select('username')
+        .eq('id',payload.new.user_id)
+        .limit(1)
+        .single()
+       payload.new.users = {username:userUpdate.data.username}
         setChannelDetails(prevMessages => [...prevMessages, payload.new]);
       })
       .subscribe();
@@ -70,7 +76,7 @@ function Chat() {
     async function messageData() {
       const { data: messages, error } = await supabase
         .from("messages")
-        .select("channel_id, message, user_id, inserted_at, channels(id)")
+        .select("channel_id, message, users(username), inserted_at, channels(id)")
         .eq("channel_id", channelId);
       setChannelDetails(messages);
       if (error) console.error(error);
@@ -119,7 +125,7 @@ function Chat() {
             key={index}
             message={message.message}
             timestamp={message.inserted_at}
-            user={message.user_id}
+            user={message.users.username}
           />
         ))}
         <div ref={messagesEndRef}/>
