@@ -7,6 +7,7 @@ import TextField from "@mui/material/TextField";
 import supabase from "../../lib/supabase";
 import Messages from "../message/Messages";
 import Grid from "@mui/material/Grid";
+import UsernameChange from "../user_settings/UsernameChange";
 
 function Chat() {
   const { channelId } = useParams();
@@ -154,6 +155,7 @@ function Chat() {
               onChange={e => setChatMessage(e.target.value)}
               value={chatMessage}
             />
+            
           </Grid>
         </Box>
       </div>
